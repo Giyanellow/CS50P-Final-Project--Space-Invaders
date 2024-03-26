@@ -33,9 +33,14 @@ class Player:
         
     @health.setter
     def health(self, health:int):
+        if health < 0:
+            raise ValueError("Health cannot be negative")
+        if health > 100:
+            raise ValueError("Health cannot be greater than 100")
         self._health = health
         self.max_health = health
         self.min_health = 0
+
     
     # handle border collision
     def border_collision(self):
@@ -47,7 +52,7 @@ class Player:
     # player attack
     def attack(self):
         # Create a new attack instance at player's position
-        new_attack = Attack(self.x_pos + 20, user_y)
+        new_attack = Attack(self.x_pos, user_y)
         self.attacks.append(new_attack)
 
 class Enemy:
@@ -56,7 +61,7 @@ class Enemy:
         self.damage = damage
         self.x_pos = x_pos
         self.y_pos = y_pos
-        self.attacks = []  # List to store active attacks
+        self.attacks = []
         self.direction = 1
     
     @property
@@ -65,9 +70,14 @@ class Enemy:
 
     @health.setter
     def health(self, health:int):
+        if health < 0:
+            raise ValueError("Health cannot be negative")
+        if health > 100:
+            raise ValueError("Health cannot be greater than 100")
         self._health = health
         self.max_health = health
         self.min_health = 0
+
     
     def border_collision(self):
         if self.x_pos < 0:
@@ -76,31 +86,25 @@ class Enemy:
             self.x_pos = 1540
             
     def move(self):
-        self.x_pos += self.direction * enemy_speed  # Update x_pos based on direction
-        if self.x_pos > 1540 or self.x_pos < 0:  # If the enemy has reached the edge of the screen...
-            self.direction *= -1  # Reverse direction
-            self.y_pos += 60  # Move down
+        self.x_pos += self.direction * enemy_speed
+        if self.x_pos > 1540 or self.x_pos < 0: 
+            self.direction *= -1 
+            self.y_pos += 60 
 
-        if self.y_pos > 900:
-            self.y_pos = 0
-            self.x_pos = random.randint(0, 1540)
-            self.health = 100
-    
     def attack(self):
         # Create a new attack instance at enemy's position
-        new_attack = Attack(self.x_pos + 20, self.y_pos)
+        new_attack = Attack(self.x_pos, self.y_pos)
         self.attacks.append(new_attack)
 
 def main():
     global screen
-    score = 0
     last_attack_time = 0
-    attack_interval = 2000 # 2 seconds
+    attack_interval = random.randint(0, 5) # 2 seconds
     pygame.init()
     screen = pygame.display.set_mode((1600,900))
     pygame.display.set_caption("Space Invaders")
     
-    player = Player(health=100, damage=100, score=0, x_pos=user_x, y_pos=user_y)
+    player = Player(health=100, damage=25, score=0, x_pos=user_x, y_pos=user_y)
     enemies = [Enemy(health=100, damage=10, x_pos=i*spacing, y_pos=0) for i in range(enemy_amount)]
 
     # Game Loop
@@ -117,7 +121,9 @@ def main():
         current_time = pygame.time.get_ticks()
         if current_time - last_attack_time > attack_interval:
             for enemy in enemies:
-                enemy.attack()
+                random_num = random.uniform(0, 1)
+                if random_num < 0.01: # 1% chance of attacking
+                    enemy.attack()
             last_attack_time = current_time
             
         # Lose Conditionals
@@ -126,6 +132,7 @@ def main():
             print("Game Over")
             pygame.quit()
             sys.exit()
+            
         # If enemy crosses border
         for enemy in enemies:
             if enemy.y_pos > 625:
@@ -155,7 +162,7 @@ def main():
 
         # Game Tick / FPS
         clock = pygame.time.Clock()
-        clock.tick(120)
+        clock.tick(30)
         
         
 def key_press(keys, player):
@@ -184,20 +191,20 @@ def check_collisions(player, enemies):
     for enemy in enemies:
         for attack in enemy.attacks:
             if player.x_pos < attack.x_pos < player.x_pos + 60 and player.y_pos < attack.y_pos < player.y_pos + 60:
-                player.health -= enemy.damage  # Decrease player's health
-                enemy.attacks.remove(attack)  # Remove the attack
+                player.health -= enemy.damage 
+                enemy.attacks.remove(attack) 
 
         for attack in player.attacks:
             if enemy.x_pos < attack.x_pos < enemy.x_pos + 60 and enemy.y_pos < attack.y_pos < enemy.y_pos + 60:
-                enemy.health -= player.damage  # Decrease enemy's health
-                player.attacks.remove(attack)  # Remove the attack
+                enemy.health -= player.damage 
+                player.attacks.remove(attack)
                 if enemy.health <= 0:
-                    enemies.remove(enemy)  # Remove the enemy if its health is 0
+                    enemies.remove(enemy) 
                     player.score += 1
 
 def draw_background():
     screen.fill((0,0,0))
-    # Draw grid
+    #Draw grid
     for x in range(80):
         for y in range(80):
             rect = pygame.Rect(x*grid_size, y*grid_size, grid_size, grid_size)
@@ -221,7 +228,7 @@ def draw_player(player):
     
     # Draw attacks
     for attack in player.attacks:
-        pygame.draw.rect(screen, (0,255,0), (attack.x_pos, attack.y_pos, 20, 20))
+        pygame.draw.rect(screen, (0,255,0), (attack.x_pos + 20, attack.y_pos, 20, 20))
         
 def draw_enemy(enemies):
     # Draw enemies
