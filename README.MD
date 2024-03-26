@@ -2,6 +2,9 @@
 
 This project is a rendition of the classic arcade game Space Invaders implemented using the Pygame library. The game involves controlling a spaceship at the bottom of the screen, shooting bullets to destroy descending alien invaders while avoiding their attacks. The player earns points for each alien destroyed and progresses through levels as they eliminate more invaders. With customizable features such as speed adjustments and different alien formations, this Space Invaders game offers a nostalgic yet immersive gaming experience.
 
+## Video Demonstration
+[https://youtu.be/aSsCI14cSvQ]
+
 ## Requirements
 
 - Python 3.6 or higher
